@@ -87,6 +87,8 @@ public class DDSService extends Service {
                 .setMicType(0);
 
         //录音参数配置方式
+//        ddsConfigBuilder.createWakeupBuilder()
+//                .setMicType(2);
 //        ddsConfigBuilder.createRecorderBuilder()
 //                .setAudioSource(6) // 录音机参数: audioSource 录音机数据源类型
 //                .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
@@ -96,6 +98,14 @@ public class DDSService extends Service {
 //                .setAudioChannelCount(4);       // 音频通道数 单麦是1
 //        ddsConfigBuilder.addConfig("AUDIO_CHANNEL_INDEX_MASK", 0);//通道掩码
 
+//        //唤醒&信号处理资源
+//        ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
+//        //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
+//        ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, "/sdcard/res/wkp_aicar_zeekr_uni_v1.3.4_20240920_3tasks_vp.bin");
+//        ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, "/sdcard/res/sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin");
+
+
+        //设备唯一码
         ddsConfigBuilder.createCommonBuilder()
                 .setCustomZip("product.zip")
                 .setDeviceId("test1236666")
