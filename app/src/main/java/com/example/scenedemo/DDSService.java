@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioFormat;
 import android.os.Build;
 import android.os.IBinder;
 
@@ -76,7 +77,7 @@ public class DDSService extends Service {
         DDSConfigBuilder ddsConfigBuilder = new DDSConfigBuilder(
                 "279632696",  // 产品ID
                 "DEMO",   // 产品分支 prod/test/(自定义分支)
-                "e90c2e9d0977e90c2e9d0977690b64f1",     // 产品的 apiKey，一个API Key只被指定的客户端使用，来源：DUI控制台-产品接入-授权管理
+                "c8411d5fd54cc8411d5fd54c690c73e4",     // 产品的 apiKey，一个API Key只被指定的客户端使用，来源：DUI控制台-产品接入-授权管理
                 "70262b0e599d6471d60e58426e4671ff", // 产品的 productKey,用于设备注册请求签名，来源：DUI控制台-产品接入-授权管理
                 "964a8655c24776bb10c3d8b42796f194", // 产品的 productSecret,用于设备注册请求签名，来源：DUI控制台-产品接入-授权管理
                 "duicore.zip"
@@ -90,12 +91,11 @@ public class DDSService extends Service {
 //        ddsConfigBuilder.createRecorderBuilder()
 //                .setAudioSource(6) // 录音机参数: audioSource 录音机数据源类型
 //                .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
-//                .setAudioChannelConf(1020)  // 录音机参数：channelConfig 录音机频道源类型
+//                .setAudioChannelConf(4092)  // 录音机参数：channelConfig 录音机频道源类型
 //                .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)    // 录音机参数：audioFormat 每个采样大小
-//                .setAudioBufferSizeInByte(192000)                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
-//                .setAudioChannelCount(4);       // 音频通道数 单麦是1
-//        ddsConfigBuilder.addConfig("AUDIO_CHANNEL_INDEX_MASK", 0);//通道掩码
-
+//                .setAudioBufferSizeInByte(5120);                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
+//        ddsConfigBuilder.addConfig("AEC_CHANNEL", 10);
+//        ddsConfigBuilder.addConfig("MIC_ECHO_CHANNEL_NUM",10);
         //唤醒&信号处理资源
 //        ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
 //        //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
@@ -108,7 +108,6 @@ public class DDSService extends Service {
 //            ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
 //        }
 
-
         //设备唯一码
         ddsConfigBuilder.createCommonBuilder()
                 .setCustomZip("product.zip")
@@ -116,11 +115,17 @@ public class DDSService extends Service {
                 .setDeviceName("test1236666");
 
 
-        //国外服务器地址
+        //国内服务器地址（alpha环境测试用）
         ddsConfigBuilder.addConfig("AUTH_SERVER", "https://auth.dui.ai");//# 授权服务
         ddsConfigBuilder.addConfig("CBRIDGE_ADDR", "wss://dds.alpha.duiopen.com/dds/v3");//# 语音服务，bridge的webwocket地址
         ddsConfigBuilder.addConfig("UPLOAD_ADDR", "https:/dds.alpha.duiopen.com/cinfo/v2");//#词库上传地址
         ddsConfigBuilder.addConfig("TTS_SERVER", "https://tts.alpha.duiopen.com/runtime/aggregation/synthesize");//# TTS服务地址
+
+        //国外正式环境服务器
+//        ddsConfigBuilder.addConfig("AUTH_SERVER", "https://auth.aispeech.com");//# 授权服务
+//        ddsConfigBuilder.addConfig("CBRIDGE_ADDR", "wss://dds.aispeech.com/dds/v3");//# 语音服务，bridge的webwocket地址
+//        ddsConfigBuilder.addConfig("UPLOAD_ADDR", "https:/dds.aispeech.com/cinfo/v2");//#词库上传地址
+//        ddsConfigBuilder.addConfig("TTS_SERVER", "https://tts.aispeech.com/runtime/aggregation/synthesize");//# TTS服务地址
 
         //配置英文需要的参数
         ddsConfigBuilder.addConfig("LANGUAGE_MODEL_NAME", "English");
