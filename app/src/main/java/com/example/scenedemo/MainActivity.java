@@ -1,0 +1,123 @@
+package com.example.scenedemo;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+import com.aispeech.dui.dds.DDS;
+import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class MainActivity extends AppCompatActivity {
+    private Button test,charge;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        checkAndRequestPermissions();
+        test = findViewById(R.id.test);
+        charge = findViewById(R.id.charge);
+        initButtonClickListener();
+    }
+
+    private void initButtonClickListener() {
+        test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                try {
+//                    DDS.getInstance().getAgent().sendText("I have a meeting at City Plaza");//这种方式英文不通
+//                } catch (DDSNotInitCompleteException e) {
+//                    e.printStackTrace();
+//                }
+            }
+        });
+        charge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("speakText", "Your charge was fifty six point one kilo watt hour, at eighteen point zero eight euros total. Bravo for choosing renewable energy!");
+                    DDS.getInstance().getAgent().startDialog(jsonObject);
+                } catch (JSONException | DDSNotInitCompleteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void checkAndRequestPermissions() {
+        // 检查是否同时拥有两个权限
+        boolean hasPhonePermission = hasReadPhoneStatePermission();
+        boolean hasAudioPermission = hasRecordAudioPermission();
+
+        if (!hasPhonePermission || !hasAudioPermission) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            android.Manifest.permission.READ_PHONE_STATE,
+                            android.Manifest.permission.RECORD_AUDIO
+                    },
+                    100);
+        } else {
+            startDDSService();
+        }
+    }
+
+
+    private  void startDDSService(){
+        Intent intent = new Intent(this, DDSService.class);
+        // 对于 Android 8.0+，需使用 startForegroundService() 启动前台服务（若 Service 是前台服务）
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+    /**
+     * 检查是否拥有麦克风权限（RECORD_AUDIO）
+     */
+    public boolean hasRecordAudioPermission() {
+        return ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+    }
+    /**
+     * 检查是否拥有 READ_PHONE_STATE 权限
+     */
+    public boolean hasReadPhoneStatePermission() {
+        return ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * 权限申请结果回调（处理所有权限的授权结果）
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // 处理批量权限申请的结果（requestCode = 100）
+        if (requestCode == 100) {
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (allGranted) {
+                startDDSService();
+            }
+        }
+    }
+}
