@@ -1,10 +1,5 @@
 package com.example.scenedemo;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -17,8 +12,14 @@ import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 public class MainActivity extends AppCompatActivity {
-    private Button test,charge;
+    private Button test, charge;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,24 +56,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkAndRequestPermissions() {
-        // 检查是否同时拥有两个权限
+        // 检查是否同时拥有所有必要权限
         boolean hasPhonePermission = hasReadPhoneStatePermission();
         boolean hasAudioPermission = hasRecordAudioPermission();
+        boolean hasStoragePermission = hasStoragePermission();
 
-        if (!hasPhonePermission || !hasAudioPermission) {
+        if (!hasPhonePermission || !hasAudioPermission || !hasStoragePermission) {
             ActivityCompat.requestPermissions(this,
                     new String[]{
                             android.Manifest.permission.READ_PHONE_STATE,
-                            android.Manifest.permission.RECORD_AUDIO
+                            android.Manifest.permission.RECORD_AUDIO,
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
                     },
-                    100);
+                    PERMISSION_REQUEST_CODE);
         } else {
             startDDSService();
         }
     }
 
 
-    private  void startDDSService(){
+    private void startDDSService() {
         Intent intent = new Intent(this, DDSService.class);
         // 对于 Android 8.0+，需使用 startForegroundService() 启动前台服务（若 Service 是前台服务）
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             startService(intent);
         }
     }
+
     /**
      * 检查是否拥有麦克风权限（RECORD_AUDIO）
      */
@@ -88,12 +93,24 @@ public class MainActivity extends AppCompatActivity {
         return ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
+
     /**
      * 检查是否拥有 READ_PHONE_STATE 权限
      */
     public boolean hasReadPhoneStatePermission() {
         return ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * 检查是否拥有存储权限
+     */
+    public boolean hasStoragePermission() {
+        boolean writePermission = ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        boolean readPermission = ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        return writePermission && readPermission;
     }
 
     /**
@@ -105,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
                                            int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        // 处理批量权限申请的结果（requestCode = 100）
-        if (requestCode == 100) {
+        // 处理批量权限申请的结果
+        if (requestCode == PERMISSION_REQUEST_CODE) {
             boolean allGranted = true;
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {

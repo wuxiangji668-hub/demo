@@ -5,15 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.IBinder;
-import android.text.TextUtils;
-
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
 import com.aispeech.ailog.AILog;
 import com.aispeech.dui.dds.DDS;
@@ -23,12 +16,13 @@ import com.aispeech.dui.dds.DDSConfigBuilder;
 import com.aispeech.dui.dds.DDSInitListener;
 import com.aispeech.dui.dds.agent.Agent;
 import com.aispeech.dui.dds.agent.DMTaskCallback;
-import com.aispeech.dui.dds.agent.MessageObserver;
 import com.aispeech.dui.dds.agent.wakeup.word.WakeupWord;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
 
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 public class DDSService extends Service {
     private static String TAG = "DDSService";
@@ -47,6 +41,10 @@ public class DDSService extends Service {
         super.onCreate();
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
+
+        // 复制.bin文件到外部存储的res目录
+        FileCopyUtils.copyBinFilesToSDCard(getApplicationContext());
+
         //初始化dds
         intDDS();
     }
@@ -98,11 +96,17 @@ public class DDSService extends Service {
 //                .setAudioChannelCount(4);       // 音频通道数 单麦是1
 //        ddsConfigBuilder.addConfig("AUDIO_CHANNEL_INDEX_MASK", 0);//通道掩码
 
-//        //唤醒&信号处理资源
+        //唤醒&信号处理资源
 //        ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
 //        //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
-//        ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, "/sdcard/res/wkp_aicar_zeekr_uni_v1.3.4_20240920_3tasks_vp.bin");
-//        ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, "/sdcard/res/sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin");
+//        File externalStorage = getExternalFilesDir(null);
+//        if (externalStorage != null) {
+//            File wakeupFile = new File(externalStorage, "res/wkp_aicar_zeekr_uni_v1.3.4_20240920_3tasks_vp.bin");
+//            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin");
+//
+//            ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, wakeupFile.getAbsolutePath());
+//            ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
+//        }
 
 
         //设备唯一码
@@ -162,7 +166,8 @@ public class DDSService extends Service {
                     }
                 });
     }
-    DMTaskCallback dmCallback =new DMTaskCallback() {
+
+    DMTaskCallback dmCallback = new DMTaskCallback() {
         @Override
         public JSONObject onDMTaskResult(JSONObject jsonObject, Type type) {
             AILog.d(TAG, "jsonObject: " + jsonObject + ", type: " + type);
@@ -174,7 +179,7 @@ public class DDSService extends Service {
 //                71304, "asr null"
 //                71309, "error retry max"
 
-                if(errId == 71305 || errId == 71304 || errId == 71309){
+                if (errId == 71305 || errId == 71304 || errId == 71309) {
                     jsonObject.remove("nlg");
                     jsonObject.remove("display");
                     jsonObject.put("nlg", ""); //播报置空
