@@ -25,6 +25,8 @@ import org.json.JSONObject;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import java.io.File;
+
 public class DDSService extends Service {
     private static String TAG = "DDSService";
     private static final String CHANNEL_ID = "dds_service_channel";
@@ -100,16 +102,16 @@ public class DDSService extends Service {
         ddsConfigBuilder.addConfig("AEC_CHANNEL", 10);
         ddsConfigBuilder.addConfig("MIC_ECHO_CHANNEL_NUM",10);
         //唤醒&信号处理资源
-//        ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
-//        //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
-//        File externalStorage = getExternalFilesDir(null);
-//        if (externalStorage != null) {
-//            File wakeupFile = new File(externalStorage, "res/wkp_aicar_zeekr_uni_v1.3.4_20240920_3tasks_vp.bin");
+        ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
+        //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
+        File externalStorage = getExternalFilesDir(null);
+        if (externalStorage != null) {
+            File wakeupFile = new File(externalStorage, "res/wkp_aicar_tianqin_haiwai_20250513_v1.0.bin");
 //            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin");
-//
-//            ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, wakeupFile.getAbsolutePath());
+
+            ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, wakeupFile.getAbsolutePath());
 //            ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
-//        }
+        }
 
         //设备唯一码
         ddsConfigBuilder.createCommonBuilder()
@@ -205,10 +207,10 @@ public class DDSService extends Service {
 
     private void intWakeupWord() {
         WakeupWord mainWord = new WakeupWord()
-                .setPinyin("ni hao xiao chi")
-                .setWord("你好小迟")
-                .addGreeting("我在")
-                .setThreshold("0.15");
+                .setPinyin("hai ao fei")
+                .setWord("hai ao fei")
+                .addGreeting("I'm here")
+                .setThreshold("0.2");
         try {
             DDS.getInstance().getAgent().getWakeupEngine().addMainWakeupWord(mainWord);
         } catch (DDSNotInitCompleteException e) {

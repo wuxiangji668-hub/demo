@@ -30,7 +30,7 @@ public class FileCopyUtils {
 
         // 复制第二个.bin文件
         boolean result2 = FileCopyUtils.copyAssetFileToSDCard(context,
-                "wkp_aicar_zeekr_uni_v1.3.4_20240920_3tasks_vp.bin",
+                "wkp_aicar_tianqin_haiwai_20250513_v1.0.bin",
                 targetDir);
 
         AILog.d(TAG, "Copy .bin files result: " + result1 + ", " + result2);
@@ -38,7 +38,7 @@ public class FileCopyUtils {
         // 检查一下文件路径
         File externalStorage = context.getExternalFilesDir(null);
         if (externalStorage != null) {
-            File wakeupFile = new File(externalStorage, "res/wkp_aicar_zeekr_uni_v1.3.4_20240920_3tasks_vp.bin");
+            File wakeupFile = new File(externalStorage, "res/wkp_aicar_tianqin_haiwai_20250513_v1.0.bin");
             File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin");
 
             AILog.d(TAG, "Wakeup file path: " + wakeupFile.getAbsolutePath());
