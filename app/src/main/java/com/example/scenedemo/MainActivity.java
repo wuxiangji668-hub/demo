@@ -2,12 +2,15 @@ package com.example.scenedemo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.aispeech.dui.dds.DDS;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
+import com.aispeech.widget.SpeechASRAnimTextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +20,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
-    private Button test, charge;
+    private static String TAG = "MainActivity";
+    private SpeechASRAnimTextView speechASRAnimTextView;
+    private Button test, charge,calling,callend,cleartext;
     private static final int PERMISSION_REQUEST_CODE = 100;
 
     @Override
@@ -27,10 +32,14 @@ public class MainActivity extends AppCompatActivity {
         checkAndRequestPermissions();
         test = findViewById(R.id.test);
         charge = findViewById(R.id.charge);
-        initButtonClickListener();
+        calling = findViewById(R.id.calling);
+        callend = findViewById(R.id.callend);
+        cleartext = findViewById(R.id.cleartext);
+        speechASRAnimTextView = findViewById(R.id.tv_dialog_main_interact_default);
+        initListener();
     }
 
-    private void initButtonClickListener() {
+    private void initListener() {
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,6 +60,38 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException | DDSNotInitCompleteException e) {
                     e.printStackTrace();
                 }
+            }
+        });
+        calling.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    DDS.getInstance().getAgent().getTTSEngine().speak("Dani is calling. Hold the answer button to enable transcription.", 1, "100", AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+                } catch (DDSNotInitCompleteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        callend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //调整上屏的速度时，可以修改SpeechASRAnimTextView 中的getShowTextDuration方法
+
+                speechASRAnimTextView.setText("I'm");
+                speechASRAnimTextView.setText("I'm going");
+                speechASRAnimTextView.setText("I'm going to the ");
+                speechASRAnimTextView.setText("I'm going to the supermarket ");
+                speechASRAnimTextView.setText("I'm going to the supermarket to buy snacks");
+                speechASRAnimTextView.setText("I'm going to the supermarket to buy snacks, but I ");
+                speechASRAnimTextView.setText("I'm going to the supermarket to buy snacks, but I don't know ");
+                speechASRAnimTextView.setText("I'm going to the supermarket to buy snacks, but I don't know what to buy");
+            }
+        });
+
+        cleartext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                speechASRAnimTextView.setText("");
             }
         });
     }

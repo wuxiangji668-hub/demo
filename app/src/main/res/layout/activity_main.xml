@@ -21,4 +21,39 @@
         android:text="充完电之后拉起语音并播报"
         android:layout_gravity="center_horizontal" />
 
+    <Button
+        android:id="@+id/calling"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="来电"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:id="@+id/callend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="挂断"
+        android:layout_gravity="center_horizontal" />
+
+    <com.aispeech.widget.SpeechASRAnimTextView
+        android:id="@+id/tv_dialog_main_interact_default"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="400dp"
+        android:layout_height="30dp"
+        app:asrBgBorderColor="#00000000"
+        app:asrBgRectColor="#00000000"
+        app:asrHeight="50"
+        app:asrMaxWidth="1500"
+        app:asrMinWidth="80"
+        app:asrTextColor="@color/black"
+        app:asrTextPaddingStartEnd="0"
+        app:asrTextSize="50" />
+
+    <Button
+        android:id="@+id/cleartext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="清空文字"
+        android:layout_gravity="center_horizontal" />
+
 </LinearLayout>

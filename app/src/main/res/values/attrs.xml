@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RatingBar">
+        <!--尺寸值-->
+        <attr name="starImageSize" format="dimension" />
+        <!--星星间距-->
+        <attr name="starPadding" format="dimension" />
+        <!--星星总数-->
+        <attr name="starCount" format="integer" />
+        <!--空白的星星资源文件值-->
+        <attr name="starEmpty" format="reference" />
+        <!--满星资源文件值-->
+        <attr name="starFill" format="reference" />
+        <!--半星资源文件值-->
+        <attr name="starHalf" format="reference" />
+        <!--是否可点击boolean值-->
+        <attr name="clickable" format="boolean" />
+        <!--当前进度float值-->
+        <attr name="starStep" format="float" />
+        <!--每次进度方式的值，整星还是半星-->
+        <attr name="stepSize">
+            <enum name="Half" value="0" />
+            <enum name="Full" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="ImageViewRound">
+        <attr name="type">
+            <enum name="Circle" value="0" />
+            <enum name="Round" value="1" />
+            <enum name="Oval" value="2" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="RecyclerViewPagerIndicator">
+        <!--浅色主题颜色-->
+        <attr name="color" format="color|reference" />
+        <!--深色主题颜色-->
+        <attr name="lightColor" format="color|reference" />
+    </declare-styleable>
+
+    <declare-styleable name="WarpLinearLayout">
+        <attr name="grivate" format="enum"><!--对齐方式 !-->
+            <enum name="right" value="0"></enum>
+            <enum name="left" value="1"></enum>
+            <enum name="center" value="2"></enum>
+        </attr>
+        <attr name="horizontal_Space" format="dimension"></attr>
+        <attr name="vertical_Space" format="dimension"></attr>
+        <attr name="isFull" format="boolean"></attr>
+    </declare-styleable>
+
+
+    <declare-styleable name="StreamTextView">
+        <!--字体颜色 ，默认黑色-->
+        <attr name="streamTextColor" format="reference|color" />
+        <!--文字大小 ，默认 28-->
+        <attr name="streamTextSize" format="dimension" />
+        <!--文字大小 ，int 值接口-->
+        <attr name="streamTextSizeInt" format="integer" />
+        <!-- 文字宽度，int 值接口-->
+        <attr name="streamTextWidthInt" format="integer" />
+        <!-- 位移和透明底变化的动画时长，默认300-->
+        <attr name="animationDuration" format="integer" />
+        <!-- 屏幕可利用显示的宽度，如果是异形屏需要设置这个参数-->
+        <attr name="availableScreenWidth" format="integer" />
+        <!-- 显示的文字宽度占屏幕宽度的百分比，默认0.7 即 屏幕可利用显示的宽度的0.7倍-->
+        <attr name="displayWidthPer" format="float" />
+        <!-- 字间距比例, UI设计标准 默认1.05，推荐的字间距是字体大小的1.05到1.2倍-->
+        <attr name="wordSpaceRate" format="float" />
+        <!-- 所显示文本的背景色或者背景资源资源，默认无背景-->
+        <attr name="backgroundRes" format="reference|color" />
+        <!-- 所显示文本的最大字数，超过这个字数后面的文本就会覆盖前面的文本，默认不作限制-->
+        <attr name="maxTextCount" format="integer" />
+        <!-- 左移的位置，用于适配居中效果，默认10-->
+        <attr name="leftMoveDis" format="integer" />
+        <!-- 配置文字流离上边距的距离,默认10-->
+        <attr name="textTopMargin" format="integer" />
+
+    </declare-styleable>
+
+
+
+
+    <declare-styleable name="SpeechASRAnimTextView">
+        <!--字体颜色 ，默认黑色-->
+        <attr name="asrTextColor" format="reference|color" />
+        <!--背景框颜色值 ，默认透明-->
+        <attr name="asrBgRectColor" format="reference|color" />
+        <!--边框颜色值 ，默认透明-->
+        <attr name="asrBgBorderColor" format="reference|color" />
+        <!--文字大小 ，float 值 -->
+        <attr name="asrTextSize" format="float" />
+        <!--文本框最大宽度 ，float 值 -->
+        <attr name="asrMaxWidth" format="float" />
+        <!--文本框最小宽度 ，float 值 -->
+        <attr name="asrMinWidth" format="float" />
+        <!--文本框高度 ，float 值 -->
+        <attr name="asrHeight" format="float" />
+        <!--文本框字体离左边距大小 ，float 值 -->
+        <attr name="asrTextPaddingStartEnd" format="float" />
+
+    </declare-styleable>
+
+
+
+</resources>
