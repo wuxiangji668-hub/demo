@@ -108,7 +108,7 @@ public class DDSService extends Service {
         File externalStorage = getExternalFilesDir(null);
         if (externalStorage != null) {
             File wakeupFile = new File(externalStorage, "res/wkp_aicar_tianqin_haiwai_20250513_v1.0.bin");
-            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_10chan_4mic_6ref_outgain2_zeekrCS1E_v165_20250509_onThread_AEC2_doa1");
+            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_10chan_4mic_6ref_outgain2_zeekrCS1E_v165_20250509_onThread_AEC2_doa1.bin");
 
             ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, wakeupFile.getAbsolutePath());
             ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
