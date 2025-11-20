@@ -87,20 +87,20 @@ public class DDSService extends Service {
                 "964a8655c24776bb10c3d8b42796f194", // 产品的 productSecret,用于设备注册请求签名，来源：DUI控制台-产品接入-授权管理
                 "duicore.zip"
         );
-        ddsConfigBuilder.createWakeupBuilder()
-                .setMicType(0);
+//        ddsConfigBuilder.createWakeupBuilder()
+//                .setMicType(0);
 
 //        //录音参数配置方式
-//        ddsConfigBuilder.createWakeupBuilder()
-//                .setMicType(2);
-//        ddsConfigBuilder.createRecorderBuilder()
-//                .setAudioSource(6) // 录音机参数: audioSource 录音机数据源类型
-//                .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
-//                .setAudioChannelConf(4092)  // 录音机参数：channelConfig 录音机频道源类型
-//                .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)    // 录音机参数：audioFormat 每个采样大小
-//                .setAudioBufferSizeInByte(5120);                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
-//        ddsConfigBuilder.addConfig("AEC_CHANNEL", 10);
-//        ddsConfigBuilder.addConfig("MIC_ECHO_CHANNEL_NUM",10);
+        ddsConfigBuilder.createWakeupBuilder()
+                .setMicType(2);
+        ddsConfigBuilder.createRecorderBuilder()
+                .setAudioSource(6) // 录音机参数: audioSource 录音机数据源类型
+                .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
+                .setAudioChannelConf(4092)  // 录音机参数：channelConfig 录音机频道源类型
+                .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)    // 录音机参数：audioFormat 每个采样大小
+                .setAudioBufferSizeInByte(5120);                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
+        ddsConfigBuilder.addConfig("AEC_CHANNEL", 10);
+        ddsConfigBuilder.addConfig("MIC_ECHO_CHANNEL_NUM",10);
 
         //唤醒&信号处理资源
         ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
@@ -108,10 +108,10 @@ public class DDSService extends Service {
         File externalStorage = getExternalFilesDir(null);
         if (externalStorage != null) {
             File wakeupFile = new File(externalStorage, "res/wkp_aicar_tianqin_haiwai_20250513_v1.0.bin");
-//            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin");
+            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_10chan_4mic_6ref_outgain2_zeekrCS1E_v165_20250509_onThread_AEC2_doa1");
 
             ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, wakeupFile.getAbsolutePath());
-//            ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
+            ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
         }
 
         //设备唯一码
