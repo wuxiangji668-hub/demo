@@ -17,45 +17,94 @@ public class FileCopyUtils {
 
 
     /**
-     * 复制.bin文件到外部存储的res目录
+     * 复制assets目录下的bin目录到外部存储的res目录
      */
     public static void copyBinFilesToSDCard(Context context) {
         // 使用正确的路径
-        String targetDir = "res";
+        String sourceDir = "bin"; // assets目录下的bin文件夹
+        String targetDir = "res"; // 外部存储的目标目录
 
-        // 复制第一个.bin文件
-        boolean result1 = FileCopyUtils.copyAssetFileToSDCard(context,
-                "sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin",
-                targetDir);
+        // 复制整个bin目录
+        boolean result = copyAssetDirToSDCard(context, sourceDir, targetDir);
 
-        // 复制第二个.bin文件
-        boolean result2 = FileCopyUtils.copyAssetFileToSDCard(context,
-                "wkp_aicar_tianqin_haiwai_20250513_v1.0.bin",
-                targetDir);
+        AILog.d(TAG, "Copy bin directory result: " + result);
+    }
 
-        AILog.d(TAG, "Copy .bin files result: " + result1 + ", " + result2);
+    /**
+     * 递归复制assets目录下的文件夹到外部存储
+     *
+     * @param context       上下文
+     * @param assetDirPath  assets目录下的源文件夹路径
+     * @param targetDir     外部存储的目标目录
+     * @return 是否复制成功
+     */
+    private static boolean copyAssetDirToSDCard(Context context, String assetDirPath, String targetDir) {
+        try {
+            // 检查外部存储是否可用
+            if (!isExternalStorageWritable()) {
+                Log.e(TAG, "External storage is not writable");
+                return false;
+            }
 
-        // 检查一下文件路径
-        File externalStorage = context.getExternalFilesDir(null);
-        if (externalStorage != null) {
-            File wakeupFile = new File(externalStorage, "res/wkp_aicar_tianqin_haiwai_20250513_v1.0.bin");
-            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_8chan_4mic_4ref_zeekrDC1E_001_v150_20240614_onThread_AEC4_doa1.bin");
+            // 获取应用特定的外部存储目录
+            File externalStorage = context.getExternalFilesDir(null);
+            if (externalStorage == null) {
+                Log.e(TAG, "External storage directory is null");
+                return false;
+            }
 
-            AILog.d(TAG, "Wakeup file path: " + wakeupFile.getAbsolutePath());
-            AILog.d(TAG, "Beamforming file path: " + beamformingFile.getAbsolutePath());
+            Log.d(TAG, "External storage directory: " + externalStorage.getAbsolutePath());
+
+            // 获取assets目录下的文件列表
+            String[] files = context.getAssets().list(assetDirPath);
+            if (files == null || files.length == 0) {
+                Log.w(TAG, "No files found in assets directory: " + assetDirPath);
+                return false;
+            }
+
+            Log.d(TAG, "Found " + files.length + " items in " + assetDirPath);
+
+            boolean allSuccess = true;
+            for (String fileName : files) {
+                String assetFilePath = assetDirPath + "/" + fileName;
+
+                // 检查是文件还是目录
+                String[] subFiles = context.getAssets().list(assetFilePath);
+                if (subFiles != null && subFiles.length > 0) {
+                    // 是目录，递归复制
+                    Log.d(TAG, "Processing directory: " + assetFilePath);
+                    boolean result = copyAssetDirToSDCard(context, assetFilePath, targetDir + "/" + fileName);
+                    allSuccess = allSuccess && result;
+                } else {
+                    // 是文件，直接复制
+                    Log.d(TAG, "Processing file: " + assetFilePath);
+                    boolean result = copyAssetFileToSDCard(context, assetFilePath, targetDir);
+                    allSuccess = allSuccess && result;
+                }
+            }
+
+            return allSuccess;
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to copy directory: " + assetDirPath + ", error: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            Log.e(TAG, "Unexpected error when copying directory: " + assetDirPath + ", error: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
 
     /**
-     * 将assets目录下的文件复制到外部存储的res目录
+     * 将assets目录下的文件复制到外部存储
      *
-     * @param context       上下文
-     * @param assetFileName assets目录下的文件名
-     * @param targetDir     目标目录
+     * @param context        上下文
+     * @param assetFilePath  assets目录下的文件路径（可能包含子目录）
+     * @param targetDir      目标目录
      * @return 是否复制成功
      */
-    private static boolean copyAssetFileToSDCard(Context context, String assetFileName, String targetDir) {
+    private static boolean copyAssetFileToSDCard(Context context, String assetFilePath, String targetDir) {
         try {
             // 检查外部存储是否可用
             if (!isExternalStorageWritable()) {
@@ -85,8 +134,11 @@ public class FileCopyUtils {
                 }
             }
 
+            // 提取文件名（去除路径部分）
+            String fileName = assetFilePath.substring(assetFilePath.lastIndexOf("/") + 1);
+            
             // 目标文件路径
-            File outFile = new File(dir, assetFileName);
+            File outFile = new File(dir, fileName);
 
             // 如果文件已存在，直接返回true
             if (outFile.exists()) {
@@ -95,7 +147,7 @@ public class FileCopyUtils {
             }
 
             // 打开assets文件输入流
-            InputStream inputStream = context.getAssets().open(assetFileName);
+            InputStream inputStream = context.getAssets().open(assetFilePath);
 
             // 创建文件输出流
             OutputStream outputStream = new FileOutputStream(outFile);
@@ -115,12 +167,10 @@ public class FileCopyUtils {
             Log.d(TAG, "File copied successfully to: " + outFile.getAbsolutePath());
             return true;
         } catch (IOException e) {
-            Log.e(TAG, "Failed to copy file: " + assetFileName + ", error: " + e.getMessage());
-            e.printStackTrace();
+            Log.e(TAG, "Failed to copy file: " + assetFilePath + ", error: " + e.getMessage());
             return false;
         } catch (Exception e) {
-            Log.e(TAG, "Unexpected error when copying file: " + assetFileName + ", error: " + e.getMessage());
-            e.printStackTrace();
+            Log.e(TAG, "Unexpected error when copying file: " + assetFilePath + ", error: " + e.getMessage());
             return false;
         }
     }

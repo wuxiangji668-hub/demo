@@ -90,29 +90,54 @@ public class DDSService extends Service {
 //        ddsConfigBuilder.createWakeupBuilder()
 //                .setMicType(0);
 
-//        //录音参数配置方式
+//        //录音参数配置方式  --- 极氪001
+//        ddsConfigBuilder.createWakeupBuilder()
+//                .setMicType(2);
+//        ddsConfigBuilder.createRecorderBuilder()
+//                .setAudioSource(6) // 录音机参数: audioSource 录音机数据源类型
+//                .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
+//                .setAudioChannelConf(4092)  // 录音机参数：channelConfig 录音机频道源类型
+//                .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)    // 录音机参数：audioFormat 每个采样大小
+//                .setAudioBufferSizeInByte(5120);                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
+//        ddsConfigBuilder.addConfig("AEC_CHANNEL", 10);
+//        ddsConfigBuilder.addConfig("MIC_ECHO_CHANNEL_NUM",10);
+//
+//        //唤醒&信号处理资源
+//        ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
+//        //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
+//        File externalStorage = getExternalFilesDir(null);
+//        if (externalStorage != null) {
+//            File wakeupFile = new File(externalStorage, "res/wkp_aicar_tianqin_haiwai_20250513_v1.0.bin");
+//            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_10chan_4mic_6ref_outgain2_zeekrCS1E_v165_20250509_onThread_AEC2_doa1.bin");
+//
+//            ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, wakeupFile.getAbsolutePath());
+//            ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
+//        }
+
+
+        //录音参数配置方式  --- 奔腾E311
         ddsConfigBuilder.createWakeupBuilder()
-                .setMicType(2);
+                .setMicType(7);
         ddsConfigBuilder.createRecorderBuilder()
-                .setAudioSource(6) // 录音机参数: audioSource 录音机数据源类型
+                .setAudioSource(10) // 录音机参数: audioSource 录音机数据源类型
                 .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
-                .setAudioChannelConf(4092)  // 录音机参数：channelConfig 录音机频道源类型
+                .setAudioChannelConf(12)  // 录音机参数：channelConfig 录音机频道源类型
                 .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)    // 录音机参数：audioFormat 每个采样大小
                 .setAudioBufferSizeInByte(5120);                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
-        ddsConfigBuilder.addConfig("AEC_CHANNEL", 10);
-        ddsConfigBuilder.addConfig("MIC_ECHO_CHANNEL_NUM",10);
 
         //唤醒&信号处理资源
-        ddsConfigBuilder.addConfig("CAR_FLAVOR", true);
         //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
         File externalStorage = getExternalFilesDir(null);
         if (externalStorage != null) {
             File wakeupFile = new File(externalStorage, "res/wkp_aicar_tianqin_haiwai_20250513_v1.0.bin");
-            File beamformingFile = new File(externalStorage, "res/sspe_aec_nnbss_10chan_4mic_6ref_outgain2_zeekrCS1E_v165_20250509_onThread_AEC2_doa1.bin");
+            File beamformingFile = new File(externalStorage, "res/sspe_nnaec_nnbss_wkp_4ch_2mic_2ref_outgain2_v2.0.0.165_addRaw_BeiQiN51_doa1_20250522.bin");
 
             ddsConfigBuilder.addConfig(DDSConfig.K_WAKEUP_BIN, wakeupFile.getAbsolutePath());
             ddsConfigBuilder.addConfig(DDSConfig.K_MIC_ARRAY_BEAMFORMING_CFG, beamformingFile.getAbsolutePath());
         }
+
+        // TTS播报的音频流类型
+        ddsConfigBuilder.addConfig(DDSConfig.K_STREAM_TYPE, "3"); //多媒体
 
         //设备唯一码
         ddsConfigBuilder.createCommonBuilder()
