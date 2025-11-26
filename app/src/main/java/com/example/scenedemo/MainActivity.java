@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.aispeech.ailog.AILog;
 import com.aispeech.dui.dds.DDS;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
 import com.aispeech.widget.SpeechASRAnimTextView;
@@ -100,24 +101,44 @@ public class MainActivity extends AppCompatActivity {
         // 检查是否同时拥有所有必要权限
         boolean hasPhonePermission = hasReadPhoneStatePermission();
         boolean hasAudioPermission = hasRecordAudioPermission();
-        boolean hasStoragePermission = hasStoragePermission();
+        // Android 10及以下需要存储权限, Android 11+使用 getExternalFilesDir() 无需存储权限
+        boolean hasStoragePermission = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R 
+                || hasStoragePermission();
+
+        Log.d(TAG, "checkAndRequestPermissions - SDK: " + android.os.Build.VERSION.SDK_INT
+                + ", Phone: " + hasPhonePermission 
+                + ", Audio: " + hasAudioPermission
+                + ", Storage: " + hasStoragePermission);
 
         if (!hasPhonePermission || !hasAudioPermission || !hasStoragePermission) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            android.Manifest.permission.READ_PHONE_STATE,
-                            android.Manifest.permission.RECORD_AUDIO,
-                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            android.Manifest.permission.READ_EXTERNAL_STORAGE
-                    },
-                    PERMISSION_REQUEST_CODE);
+            Log.d(TAG, "Requesting permissions...");
+            // 根据Android版本决定请求哪些权限
+            String[] permissions;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                // Android 11+: 只请求电话和录音权限
+                permissions = new String[]{
+                        android.Manifest.permission.READ_PHONE_STATE,
+                        android.Manifest.permission.RECORD_AUDIO
+                };
+            } else {
+                // Android 10及以下: 请求所有权限包括存储权限
+                permissions = new String[]{
+                        android.Manifest.permission.READ_PHONE_STATE,
+                        android.Manifest.permission.RECORD_AUDIO,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE
+                };
+            }
+            ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
         } else {
+            Log.d(TAG, "All permissions granted, starting DDSService...");
             startDDSService();
         }
     }
 
 
     private void startDDSService() {
+        AILog.d(TAG,"startDDSService...");
         Intent intent = new Intent(this, DDSService.class);
         // 对于 Android 8.0+，需使用 startForegroundService() 启动前台服务（若 Service 是前台服务）
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -166,15 +187,19 @@ public class MainActivity extends AppCompatActivity {
         // 处理批量权限申请的结果
         if (requestCode == PERMISSION_REQUEST_CODE) {
             boolean allGranted = true;
-            for (int result : grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
+            for (int i = 0; i < permissions.length; i++) {
+                Log.d(TAG, "Permission " + permissions[i] + ": " 
+                        + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "GRANTED" : "DENIED"));
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                     allGranted = false;
-                    break;
                 }
             }
 
             if (allGranted) {
+                Log.d(TAG, "All permissions granted in callback, starting DDSService...");
                 startDDSService();
+            } else {
+                Log.w(TAG, "Some permissions were denied, DDSService not started");
             }
         }
     }
