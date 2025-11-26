@@ -32,6 +32,7 @@ public class DDSService extends Service {
     private static final String CHANNEL_ID = "dds_service_channel";
     private static final int NOTIFICATION_ID = 1001;
     private DDSConfig ddsConfig;
+    private MyCustomAudio customAudio;
 
     @Nullable
     @Override
@@ -42,6 +43,7 @@ public class DDSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        AILog.d(TAG,"onCreate");
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
 
@@ -175,8 +177,15 @@ public class DDSService extends Service {
                         intWakeupWord();
                         try {
                             DDS.getInstance().setDebugMode(2);
-                            DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.FULL_DUPLEX);// 全双工模式
+                            DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.HALF_DUPLEX);// 全双工模式
                             DDS.getInstance().getAgent().getWakeupEngine().enableWakeup();//打开唤醒
+
+                            //设置预置音频
+                            if (customAudio == null) {
+                                customAudio = new MyCustomAudio();
+                            }
+                            customAudio.setAudio(getApplicationContext());
+
                         } catch (DDSNotInitCompleteException e) {
                             throw new RuntimeException(e);
                         }

@@ -17,6 +17,17 @@ public class FileCopyUtils {
 
 
     /**
+     * 复制assets目录下的audio目录到外部存储的res目录
+     */
+    public static void copyAudio(Context context) {
+        String sourceDir = "audio";
+        String targetDir = "res" + File.separator + "audio";
+        boolean result = copyAssetDirToSDCard(context, sourceDir, targetDir);
+
+        AILog.d(TAG, "Copy audio directory result: " + result);
+    }
+
+    /**
      * 复制assets目录下的bin目录到外部存储的res目录
      */
     public static void copyBinFilesToSDCard(Context context) {
