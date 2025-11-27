@@ -17,6 +17,7 @@ import com.aispeech.dui.dds.DDSConfigBuilder;
 import com.aispeech.dui.dds.DDSInitListener;
 import com.aispeech.dui.dds.agent.Agent;
 import com.aispeech.dui.dds.agent.DMTaskCallback;
+import com.aispeech.dui.dds.agent.MessageObserver;
 import com.aispeech.dui.dds.agent.wakeup.word.WakeupWord;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
 
@@ -89,8 +90,8 @@ public class DDSService extends Service {
                 "964a8655c24776bb10c3d8b42796f194", // 产品的 productSecret,用于设备注册请求签名，来源：DUI控制台-产品接入-授权管理
                 "duicore.zip"
         );
-//        ddsConfigBuilder.createWakeupBuilder()
-//                .setMicType(0);
+        ddsConfigBuilder.createWakeupBuilder()
+                .setMicType(0);
 
 //        //录音参数配置方式  --- 极氪001
 //        ddsConfigBuilder.createWakeupBuilder()
@@ -118,14 +119,14 @@ public class DDSService extends Service {
 
 
         //录音参数配置方式  --- 奔腾E311
-        ddsConfigBuilder.createWakeupBuilder()
-                .setMicType(7);
-        ddsConfigBuilder.createRecorderBuilder()
-                .setAudioSource(10) // 录音机参数: audioSource 录音机数据源类型
-                .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
-                .setAudioChannelConf(12)  // 录音机参数：channelConfig 录音机频道源类型
-                .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)    // 录音机参数：audioFormat 每个采样大小
-                .setAudioBufferSizeInByte(5120);                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
+//        ddsConfigBuilder.createWakeupBuilder()
+//                .setMicType(7);
+//        ddsConfigBuilder.createRecorderBuilder()
+//                .setAudioSource(10) // 录音机参数: audioSource 录音机数据源类型
+//                .setAudioSamplerate(16000)                         // 录音机参数: sampleRateInHz 录音时音频采样率
+//                .setAudioChannelConf(12)  // 录音机参数：channelConfig 录音机频道源类型
+//                .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)    // 录音机参数：audioFormat 每个采样大小
+//                .setAudioBufferSizeInByte(5120);                  // 录音机参数：bufferSizeInBytes 录音机的缓存大小
 
         //唤醒&信号处理资源
         //.bin资源绝对路径，这里事先把.bin资源放到sdcard的res目录下
@@ -177,7 +178,7 @@ public class DDSService extends Service {
                         intWakeupWord();
                         try {
                             DDS.getInstance().setDebugMode(2);
-                            DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.HALF_DUPLEX);// 全双工模式
+                            DDS.getInstance().getAgent().setDuplexMode(Agent.DuplexMode.FULL_DUPLEX);// 全双工模式
                             DDS.getInstance().getAgent().getWakeupEngine().enableWakeup();//打开唤醒
 
                             //设置预置音频
@@ -232,6 +233,16 @@ public class DDSService extends Service {
                 }
                 if (errId == 71309) { //"error retry max"
                     jsonObject.put("shouldEndSession", true);
+                }
+
+                //示例：语义为空时，播报第三方大模型兜底的nlg
+                boolean enable = false;
+                if (enable) {
+                    if (errId == 71305) {
+                        String nlg = "这个是大模型返回的兜底的TTS文本播报";
+                        jsonObject.put("nlg", nlg);
+                        jsonObject.put("display", nlg);
+                    }
                 }
 
             } catch (Exception ignore) {
