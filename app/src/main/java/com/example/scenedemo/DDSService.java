@@ -194,6 +194,20 @@ public class DDSService extends Service {
                         SceneTest.getInstance().init(getApplicationContext());
                         //拦截错误码播报
                         DDS.getInstance().getAgent().setDMTaskCallback(dmCallback);
+
+                        //对话状态监听
+                        DDS.getInstance().getAgent().subscribe(new String[]{"sys.dialog.start", "sys.dialog.end"}, new MessageObserver() {
+                            @Override
+                            public void onMessage(String topic, String data) {
+                                if ("sys.dialog.start".equals(topic)) {
+                                    AILog.d(TAG, "对话开始");
+                                }
+
+                                if ("sys.dialog.end".equals(topic)) {
+                                    AILog.d(TAG, "对话结束");
+                                }
+                            }
+                        });
                     }
 
                     @Override
