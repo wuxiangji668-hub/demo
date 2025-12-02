@@ -16,6 +16,7 @@ import com.aispeech.dui.dds.DDSConfig;
 import com.aispeech.dui.dds.DDSConfigBuilder;
 import com.aispeech.dui.dds.DDSInitListener;
 import com.aispeech.dui.dds.agent.Agent;
+import com.aispeech.dui.dds.agent.ContextIntent;
 import com.aispeech.dui.dds.agent.DMTaskCallback;
 import com.aispeech.dui.dds.agent.MessageObserver;
 import com.aispeech.dui.dds.agent.tts.TTSEngine;
@@ -47,7 +48,7 @@ public class DDSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        AILog.d(TAG,"onCreate");
+        AILog.d(TAG, "onCreate");
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
 
@@ -219,16 +220,10 @@ public class DDSService extends Service {
                             }
                         });
 
+                        setDialogTimeOut();
 
-                        try {
-                            TTSEngine.TtsSpeakerRequestBean speakerrRequestBean = new TTSEngine.TtsSpeakerRequestBean();
-                            speakerrRequestBean.setSpeaker("janev5_24000");
-                            speakerrRequestBean.setSampleRate(24000);
-                            DDS.getInstance().getAgent().getTTSEngine().setTtsServer(ttsServer);
-                            DDS.getInstance().getAgent().getTTSEngine().setSpeaker(speakerrRequestBean);
-                        } catch (DDSNotInitCompleteException e) {
-                            throw new RuntimeException(e);
-                        }
+                        setSpeaker();
+
                     }
 
                     @Override
@@ -312,6 +307,32 @@ public class DDSService extends Service {
         return nlg[0];
     }
 
+
+    /**
+     * 设置全双工会话超时时间 = 延时聆听时间
+     * 单位毫秒 ms
+     */
+    private void setDialogTimeOut() {
+        int delayTime = 60 * 1000;
+        ContextIntent contextIntent = new ContextIntent();
+        contextIntent.addKeyValue("fullduplexSessionTimeout", delayTime + "");
+        try {
+            DDS.getInstance().getAgent().updateProductContext(contextIntent);//topic:system.settings   针对平台进行的配置
+        } catch (DDSNotInitCompleteException ignore) {
+        }
+    }
+
+    private void setSpeaker() {
+        try {
+            TTSEngine.TtsSpeakerRequestBean speakerrRequestBean = new TTSEngine.TtsSpeakerRequestBean();
+            speakerrRequestBean.setSpeaker("janev5_24000");
+            speakerrRequestBean.setSampleRate(24000);
+            DDS.getInstance().getAgent().getTTSEngine().setTtsServer(ttsServer);
+            DDS.getInstance().getAgent().getTTSEngine().setSpeaker(speakerrRequestBean);
+        } catch (DDSNotInitCompleteException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void intWakeupWord() {
         WakeupWord mainWord = new WakeupWord()
