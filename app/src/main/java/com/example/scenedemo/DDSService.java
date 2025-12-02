@@ -18,6 +18,7 @@ import com.aispeech.dui.dds.DDSInitListener;
 import com.aispeech.dui.dds.agent.Agent;
 import com.aispeech.dui.dds.agent.DMTaskCallback;
 import com.aispeech.dui.dds.agent.MessageObserver;
+import com.aispeech.dui.dds.agent.tts.TTSEngine;
 import com.aispeech.dui.dds.agent.wakeup.word.WakeupWord;
 import com.aispeech.dui.dds.exceptions.DDSNotInitCompleteException;
 
@@ -34,6 +35,8 @@ public class DDSService extends Service {
     private static final int NOTIFICATION_ID = 1001;
     private DDSConfig ddsConfig;
     private MyCustomAudio customAudio;
+
+    private String ttsServer;
 
     @Nullable
     @Override
@@ -150,16 +153,18 @@ public class DDSService extends Service {
 
 
         //国内服务器地址（alpha环境测试用）
-        ddsConfigBuilder.addConfig("AUTH_SERVER", "https://auth.dui.ai");//# 授权服务
-        ddsConfigBuilder.addConfig("CBRIDGE_ADDR", "wss://dds.alpha.duiopen.com/dds/v3");//# 语音服务，bridge的webwocket地址
-        ddsConfigBuilder.addConfig("UPLOAD_ADDR", "https:/dds.alpha.duiopen.com/cinfo/v2");//#词库上传地址
-        ddsConfigBuilder.addConfig("TTS_SERVER", "https://tts.alpha.duiopen.com/runtime/aggregation/synthesize");//# TTS服务地址
+//       ddsConfigBuilder.addConfig("AUTH_SERVER", "https://auth.dui.ai");//# 授权服务
+//       ddsConfigBuilder.addConfig("CBRIDGE_ADDR", "wss://dds.alpha.duiopen.com/dds/v3");//# 语音服务，bridge的webwocket地址
+//       ddsConfigBuilder.addConfig("UPLOAD_ADDR", "https:/dds.alpha.duiopen.com/cinfo/v2");//#词库上传地址
+//       ttsServer = "https://tts.alpha.duiopen.com/runtime/aggregation/synthesize";
+//       ddsConfigBuilder.addConfig("TTS_SERVER", ttsServer);//# TTS服务地址
 
         //国外正式环境服务器
-//        ddsConfigBuilder.addConfig("AUTH_SERVER", "https://auth.aispeech.com");//# 授权服务
-//        ddsConfigBuilder.addConfig("CBRIDGE_ADDR", "wss://dds.aispeech.com/dds/v3");//# 语音服务，bridge的webwocket地址
-//        ddsConfigBuilder.addConfig("UPLOAD_ADDR", "https:/dds.aispeech.com/cinfo/v2");//#词库上传地址
-//        ddsConfigBuilder.addConfig("TTS_SERVER", "https://tts.aispeech.com/runtime/aggregation/synthesize");//# TTS服务地址
+        ddsConfigBuilder.addConfig("AUTH_SERVER", "https://auth.aispeech.com");//# 授权服务
+        ddsConfigBuilder.addConfig("CBRIDGE_ADDR", "wss://dds.aispeech.com/dds/v3");//# 语音服务，bridge的webwocket地址
+        ddsConfigBuilder.addConfig("UPLOAD_ADDR", "https:/dds.aispeech.com/cinfo/v2");//#词库上传地址
+        ttsServer = "https://tts.aispeech.com/runtime/aggregation/synthesize";
+        ddsConfigBuilder.addConfig("TTS_SERVER", ttsServer);//# TTS服务地址
 
         //配置英文需要的参数
         ddsConfigBuilder.addConfig("LANGUAGE_MODEL_NAME", "English");
@@ -205,9 +210,25 @@ public class DDSService extends Service {
 
                                 if ("sys.dialog.end".equals(topic)) {
                                     AILog.d(TAG, "对话结束");
+                                    try {
+                                        DDS.getInstance().getAgent().getTTSEngine().shutup("");
+                                    } catch (DDSNotInitCompleteException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
                             }
                         });
+
+
+                        try {
+                            TTSEngine.TtsSpeakerRequestBean speakerrRequestBean = new TTSEngine.TtsSpeakerRequestBean();
+                            speakerrRequestBean.setSpeaker("janev5_24000");
+                            speakerrRequestBean.setSampleRate(24000);
+                            DDS.getInstance().getAgent().getTTSEngine().setTtsServer(ttsServer);
+                            DDS.getInstance().getAgent().getTTSEngine().setSpeaker(speakerrRequestBean);
+                        } catch (DDSNotInitCompleteException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
 
                     @Override
