@@ -253,7 +253,7 @@ public class DDSService extends Service {
                 boolean enable = false;
                 if (enable) {
                     if (errId == 71305) {
-                        String nlg = "这个是大模型返回的兜底的TTS文本播报";
+                        String nlg = getNlg();
                         jsonObject.put("nlg", nlg);
                         jsonObject.put("display", nlg);
                     }
@@ -264,6 +264,33 @@ public class DDSService extends Service {
             return jsonObject;
         }
     };
+
+
+    private String getNlg() {
+        final String[] nlg = {""};
+        final Object lock = new Object();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    nlg[0] = "这个是大模型返回的兜底的TTS文本播报";
+                    lock.notify();
+                }
+            }
+        });
+        thread.start();
+
+        synchronized (lock) {
+            try {
+                // 等待子线程执行完成，最多等待5秒
+                lock.wait(5000);
+            } catch (InterruptedException ignore) {
+            }
+        }
+
+        return nlg[0];
+    }
+
 
     private void intWakeupWord() {
         WakeupWord mainWord = new WakeupWord()
